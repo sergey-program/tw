@@ -1,0 +1,4 @@
+services:
+#    main_tweets.example:
+#        class: Main\TweetsBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]

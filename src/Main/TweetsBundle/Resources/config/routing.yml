@@ -1,0 +1,3 @@
+main_tweets_homepage:
+    path:     /main/tweets
+    defaults: { _controller: MainTweetsBundle:Default:index }
