@@ -11,4 +11,9 @@
 /bin/
 /composer.phar
 
+web/assetic/*
+web/css/*
+web/fonts/*
+web/js/*
+
 .idea

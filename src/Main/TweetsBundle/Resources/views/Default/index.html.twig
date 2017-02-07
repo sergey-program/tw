@@ -1,1 +1,131 @@
-Hello World!
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>some feed name</h1>
+    {% if app.request.get('hashtag') %}
+        <p><a href="{{ path('main_tweets_homepage') }}" class="btn btn-primary">back</a></p>
+        <p>Filter: <strong>#{{ app.request.get('hashtag') }}</strong></p>
+    {% endif %}
+
+    <div class="row">
+
+        <div class="col-md-8">
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    <h3 class="panel-title">Feed</h3>
+                </div>
+
+                <div class="panel-body">
+                    <ul class="list-group">
+                        {% for tweet in tweets %}
+                            <li class="list-group-item">
+                                <div class="pull-right">
+                                    <i class="fa fa-retweet" title="Re-tweeted"></i> {{ tweet.retweetCount }}
+                                    <i class="fa fa-star-o" title="Favorited"></i> {{ tweet.favorited }}
+                                </div>
+
+                                <p><i class="fa fa-calendar"></i> {{ tweet.createdAt|date('Y-m-d H:i:s') }}</p>
+                                <p>{{ tweet.idStr }}</p>
+
+                                {% if tweet.hashtags %}
+                                    <p>
+                                        {% for hashtag in tweet.hashtags %}
+                                            <a href="{{ path('main_tweets_with_hash_tag', {'hashtag': hashtag.hashtag}) }}">
+                                                <span class="label label-default">#{{ hashtag.hashtag }}</span>
+                                            </a>
+                                            {% if not loop.last %},{% endif %}
+                                        {% endfor %}
+                                    </p>
+                                {% endif %}
+
+                                <p>{{ tweet.text }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if maxPages > 1 %}
+                        <ul class="pagination pagination-sm">
+                            {# `«` arrow  #}
+                            <li {{ thisPage == 1 ? 'class="disabled"' }}>
+                                {% set param = app.request.get('_route_params') %}
+                                {% if param is null %}
+                                    {% set param = {'page': thisPage-1 < 1 ? 1 : thisPage-1} %}
+                                {% else %}
+                                    {% set param = param|merge({'page': thisPage-1 < 1 ? 1 : thisPage-1}) %}
+                                {% endif %}
+
+                                <a href="{{ path( app.request.get('_route'), param) }}">«</a>
+                            </li>
+
+                            {# Render each page number #}
+                            {% for i in 1..maxPages %}
+                                {% set param = app.request.get('_route_params') %}
+                                {% if param is null %}
+                                    {% set param = {'page': i} %}
+                                {% else %}
+                                    {% set param = param|merge({'page': i}) %}
+                                {% endif %}
+
+                                <li {{ thisPage == i ? 'class="active"' }}>
+                                    <a href="{{ path( app.request.get('_route'), param) }}">{{ i }}</a>
+                                </li>
+                            {% endfor %}
+
+                            {# `»` arrow #}
+                            <li {{ thisPage == maxPages ? 'class="disabled"' }}>
+                                {% set param = app.request.get('_route_params') %}
+                                {% if param is null %}
+                                    {% set param = {'page': thisPage+1 <= maxPages ? thisPage+1 : thisPage} %}
+                                {% else %}
+                                    {% set param = param|merge({'page': thisPage+1 <= maxPages ? thisPage+1 : thisPage}) %}
+                                {% endif %}
+
+                                <a href="{{ path(app.request.get('_route'), param) }}">»</a>
+                            </li>
+                        </ul>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="panel panel-default">
+
+                <div class="panel-heading">
+                    <h3 class="panel-title">Top retweeted (last 20 days)</h3>
+                </div>
+
+                <div class="panel-body">
+                    <ul class="list-group">
+                        {% for tweet in topRetweeted %}
+                            <li class="list-group-item">
+                                <div class="pull-right">
+                                    <i class="fa fa-retweet" title="Re-tweeted"></i> {{ tweet.retweetCount }}
+                                    <i class="fa fa-star-o" title="Favorited"></i> {{ tweet.favorited }}
+                                </div>
+
+                                <p><i class="fa fa-calendar"></i> {{ tweet.createdAt|date('Y-m-d H:i:s') }}</p>
+                                <p>{{ tweet.idStr }}</p>
+
+                                {% if tweet.hashtags %}
+                                    <p>
+                                        {% for hashtag in tweet.hashtags %}
+                                            <span class="label label-default">#{{ hashtag.hashtag }}</span>{% if not loop.last %},{% endif %}
+                                        {% endfor %}
+                                    </p>
+                                {% endif %}
+
+                                <p>{{ tweet.text }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
