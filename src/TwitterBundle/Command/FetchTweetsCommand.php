@@ -40,7 +40,7 @@ class FetchTweetsCommand extends ContainerAwareCommand
 
         /** @var Twitter $api */
         $api = $container->get('endroid.twitter');
-        $apiResponse = $api->query('statuses/user_timeline', 'GET', 'json', ['screen_name' => 'qslipper_ru']); // bbcrussian
+        $apiResponse = $api->query('statuses/user_timeline', 'GET', 'json', ['screen_name' => $container->getParameter('twitter_feed')]);
         $apiTweets = json_decode($apiResponse->getContent());
 
         $doctrine = $container->get('doctrine');

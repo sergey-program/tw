@@ -23,3 +23,6 @@ parameters:
     consumer_secret: "..."
     access_token: "..."
     access_token_secret: "..."
+
+    # target twitter feed
+    twitter_feed: "bbcrussian" # comes from url http://twitter.com/bbcrussian

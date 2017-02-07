@@ -18,17 +18,19 @@ class DefaultController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction($page, $hashtag = null)
+    public function indexAction($hashtag = null, $page)
     {
+//        var_dump($this->getRequest()->get('hashtag'));
+
         /** @var TweetRepository $rTweet */
         $rTweet = $this->getDoctrine()->getRepository('TwitterBundle:Tweet');
 
-        $limit = 10;
-        $tweetsPaginator = $rTweet->getPaginated($page, $limit);
+        $limit = 2;
+        $tweetsPaginator = $rTweet->getPaginated($page, $limit, $hashtag);
         $maxPage = ceil($tweetsPaginator->count() / $limit);
         $curPage = $page;
 
-        $topRetweeted = $rTweet->getTopRetweeted();
+        $topRetweeted = $rTweet->getTopRetweeted($limit, 10, $hashtag);
 
         return $this->render('TwitterBundle:Default:index.html.twig', [
             'tweets' => $tweetsPaginator,
