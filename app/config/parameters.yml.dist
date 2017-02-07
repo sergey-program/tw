@@ -31,5 +31,5 @@ parameters:
     tweets_per_page: 10
 
     # X top tweets in last Y days
-    tweets_top_count: 5
-    tweets_top_days: 10
+    tweets_top_count: 10
+    tweets_top_days: 20
