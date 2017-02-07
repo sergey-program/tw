@@ -26,3 +26,10 @@ parameters:
 
     # target twitter feed
     twitter_feed: "bbcrussian" # comes from url http://twitter.com/bbcrussian
+
+    # pagination of tweets
+    tweets_per_page: 10
+
+    # X top tweets in last Y days
+    tweets_top_count: 5
+    tweets_top_days: 10

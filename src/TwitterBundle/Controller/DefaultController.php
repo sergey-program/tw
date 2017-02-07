@@ -20,17 +20,19 @@ class DefaultController extends Controller
      */
     public function indexAction($hashtag = null, $page)
     {
-//        var_dump($this->getRequest()->get('hashtag'));
-
         /** @var TweetRepository $rTweet */
         $rTweet = $this->getDoctrine()->getRepository('TwitterBundle:Tweet');
 
-        $limit = 2;
-        $tweetsPaginator = $rTweet->getPaginated($page, $limit, $hashtag);
-        $maxPage = ceil($tweetsPaginator->count() / $limit);
+        $tpp = $this->getParameter('tweets_per_page');
+
+        $tweetsPaginator = $rTweet->getPaginated($page, $tpp, $hashtag);
+        $maxPage = ceil($tweetsPaginator->count() / $tpp);
         $curPage = $page;
 
-        $topRetweeted = $rTweet->getTopRetweeted($limit, 10, $hashtag);
+        $ttc = $this->getParameter('tweets_top_count');
+        $ttd = $this->getParameter('tweets_top_days');
+
+        $topRetweeted = $rTweet->getTopRetweeted($ttc, $ttd, $hashtag);
 
         return $this->render('TwitterBundle:Default:index.html.twig', [
             'tweets' => $tweetsPaginator,

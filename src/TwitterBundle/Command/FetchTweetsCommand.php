@@ -2,6 +2,7 @@
 
 namespace TwitterBundle\Command;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Endroid\Twitter\Twitter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,14 +39,16 @@ class FetchTweetsCommand extends ContainerAwareCommand
     {
         $container = $this->getContainer();
 
+        /** @var Registry $doctrine */
+        $doctrine = $container->get('doctrine');
+        $em = $doctrine->getManager();
+
         /** @var Twitter $api */
         $api = $container->get('endroid.twitter');
-        $apiResponse = $api->query('statuses/user_timeline', 'GET', 'json', ['screen_name' => $container->getParameter('twitter_feed')]);
+        $apiResponse = $api->query('statuses/user_timeline', 'GET', 'json', [
+            'screen_name' => $container->getParameter('twitter_feed')
+        ]);
         $apiTweets = json_decode($apiResponse->getContent());
-
-        $doctrine = $container->get('doctrine');
-
-        $em = $doctrine->getManager();
 
         /** @var TweetRepository $rTweet */
         $rTweet = $doctrine->getRepository('TwitterBundle:Tweet');
