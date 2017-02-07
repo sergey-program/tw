@@ -11,6 +11,11 @@ use Doctrine\ORM\EntityRepository;
  */
 class HashtagRepository extends EntityRepository
 {
+    /**
+     * @param int $tweetID
+     *
+     * @return mixed
+     */
     public function deleteByTweetID($tweetID)
     {
         return $this

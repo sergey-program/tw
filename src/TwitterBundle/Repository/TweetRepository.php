@@ -13,8 +13,8 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 class TweetRepository extends EntityRepository
 {
     /**
-     * @param int $limit Entries count limit.
-     * @param int $days  Get top for last N days.
+     * @param int $limit
+     * @param int $days
      *
      * @return array
      */
