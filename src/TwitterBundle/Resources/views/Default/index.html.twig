@@ -44,22 +44,22 @@
                         {% endfor %}
                     </ul>
 
-                    {% if maxPages > 1 %}
+                    {% if maxPage > 1 %}
                         <ul class="pagination pagination-sm">
                             {# `«` arrow  #}
-                            <li {{ thisPage == 1 ? 'class="disabled"' }}>
+                            <li {{ curPage == 1 ? 'class="disabled"' }}>
                                 {% set param = app.request.get('_route_params') %}
                                 {% if param is null %}
-                                    {% set param = {'page': thisPage-1 < 1 ? 1 : thisPage-1} %}
+                                    {% set param = {'page': curPage-1 < 1 ? 1 : curPage-1} %}
                                 {% else %}
-                                    {% set param = param|merge({'page': thisPage-1 < 1 ? 1 : thisPage-1}) %}
+                                    {% set param = param|merge({'page': curPage-1 < 1 ? 1 : curPage-1}) %}
                                 {% endif %}
 
                                 <a href="{{ path( app.request.get('_route'), param) }}">«</a>
                             </li>
 
                             {# Render each page number #}
-                            {% for i in 1..maxPages %}
+                            {% for i in 1..maxPage %}
                                 {% set param = app.request.get('_route_params') %}
                                 {% if param is null %}
                                     {% set param = {'page': i} %}
@@ -67,18 +67,18 @@
                                     {% set param = param|merge({'page': i}) %}
                                 {% endif %}
 
-                                <li {{ thisPage == i ? 'class="active"' }}>
+                                <li {{ curPage == i ? 'class="active"' }}>
                                     <a href="{{ path( app.request.get('_route'), param) }}">{{ i }}</a>
                                 </li>
                             {% endfor %}
 
                             {# `»` arrow #}
-                            <li {{ thisPage == maxPages ? 'class="disabled"' }}>
+                            <li {{ curPage == maxPage ? 'class="disabled"' }}>
                                 {% set param = app.request.get('_route_params') %}
                                 {% if param is null %}
-                                    {% set param = {'page': thisPage+1 <= maxPages ? thisPage+1 : thisPage} %}
+                                    {% set param = {'page': curPage+1 <= maxPage ? curPage+1 : curPage} %}
                                 {% else %}
-                                    {% set param = param|merge({'page': thisPage+1 <= maxPages ? thisPage+1 : thisPage}) %}
+                                    {% set param = param|merge({'page': curPage+1 <= maxPage ? curPage+1 : curPage}) %}
                                 {% endif %}
 
                                 <a href="{{ path(app.request.get('_route'), param) }}">»</a>
