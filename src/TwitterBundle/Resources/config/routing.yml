@@ -1,0 +1,11 @@
+twitter_index:
+    path:     /{page}
+    defaults: { _controller: TwitterBundle:Default:index, page: 1 }
+    requirements:
+        page: '\d+'
+
+twitter_index_hashtag:
+    path:     /{hashtag}/{page}
+    defaults: { _controller: TwitterBundle:Default:index, page: 1}
+    requirements:
+        page: '\d+'

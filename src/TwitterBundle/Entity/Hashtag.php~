@@ -1,0 +1,49 @@
+<?php
+
+namespace TwitterBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Table(name="hashtag")
+ * @ORM\Entity(repositoryClass="TwitterBundle\Repository\HashtagRepository")
+ */
+class Hashtag
+{
+    /**
+     * @var int
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var int
+     * @ORM\Column(name="tweet_id", type="integer")
+     */
+    private $tweet_id;
+
+    /**
+     * @var string
+     * @ORM\Column(name="hashtag", type="string")
+     */
+    private $hashtag;
+
+    /**
+     * @var Tweet
+     * @ORM\ManyToOne(targetEntity="Tweet", inversedBy="hashtags")
+     * @ORM\JoinColumn(name="tweet_id", referencedColumnName="id")
+     */
+    private $tweet;
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+}

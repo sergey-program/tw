@@ -1,30 +1,40 @@
 <?php
 
-namespace Main\TweetsBundle\Controller;
+namespace TwitterBundle\Controller;
 
 use Endroid\Twitter\Twitter;
-use Main\TweetsBundle\Entity\Twitter\Hashtag;
-use Main\TweetsBundle\Entity\Twitter\Tweet;
-use Main\TweetsBundle\Repository\Twitter\HashtagRepository;
-use Main\TweetsBundle\Repository\Twitter\TweetRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use TwitterBundle\Entity\Hashtag;
+use TwitterBundle\Entity\Tweet;
+use TwitterBundle\Repository\HashtagRepository;
+use TwitterBundle\Repository\TweetRepository;
 
+/**
+ * Class DefaultController
+ *
+ * @package TwitterBundle\Controller
+ */
 class DefaultController extends Controller
 {
+    /**
+     * @param null|int    $page
+     * @param null|string $hashtag
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function indexAction($page, $hashtag = null)
     {
         /** @var Twitter $api */
         $api = $this->get('endroid.twitter');
-//        $apiResponse = $api->query('statuses/user_timeline', 'GET', 'json', ['screen_name' => 'qslipper_ru']);
-        $apiResponse = $api->query('statuses/user_timeline', 'GET', 'json', ['screen_name' => 'bbcrussian']);
+        $apiResponse = $api->query('statuses/user_timeline', 'GET', 'json', ['screen_name' => 'qslipper_ru']); // bbcrussian
         $apiTweets = json_decode($apiResponse->getContent());
 
         $em = $this->getDoctrine()->getManager();
 
         /** @var TweetRepository $rTweet */
-        $rTweet = $this->getDoctrine()->getRepository('MainTweetsBundle:Twitter\Tweet');
+        $rTweet = $this->getDoctrine()->getRepository('TwitterBundle:Tweet');
         /** @var HashtagRepository $rHashtag */
-        $rHashtag = $this->getDoctrine()->getRepository('MainTweetsBundle:Twitter\Hashtag');
+        $rHashtag = $this->getDoctrine()->getRepository('TwitterBundle:Hashtag');
 
         foreach ($apiTweets as $apiTweet) {
             $tweet = $rTweet->findOneBy(['id_str' => $apiTweet->id_str]);
@@ -61,7 +71,7 @@ class DefaultController extends Controller
 
         $topRetweeted = $rTweet->getTopRetweeted();
 
-        return $this->render('MainTweetsBundle:Default:index.html.twig', [
+        return $this->render('TwitterBundle:Default:index.html.twig', [
             'tweets' => $tweetsPaginator,
             'topRetweeted' => $topRetweeted,
             'maxPages' => $maxPages,

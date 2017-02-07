@@ -3,7 +3,7 @@
 {% block body %}
     <h1>some feed name</h1>
     {% if app.request.get('hashtag') %}
-        <p><a href="{{ path('main_tweets_homepage') }}" class="btn btn-primary">back</a></p>
+        <p><a href="{{ path('twitter_index') }}" class="btn btn-primary">back</a></p>
         <p>Filter: <strong>#{{ app.request.get('hashtag') }}</strong></p>
     {% endif %}
 
@@ -31,7 +31,7 @@
                                 {% if tweet.hashtags %}
                                     <p>
                                         {% for hashtag in tweet.hashtags %}
-                                            <a href="{{ path('main_tweets_with_hash_tag', {'hashtag': hashtag.hashtag}) }}">
+                                            <a href="{{ path('twitter_index_hashtag', {'hashtag': hashtag.hashtag}) }}">
                                                 <span class="label label-default">#{{ hashtag.hashtag }}</span>
                                             </a>
                                             {% if not loop.last %},{% endif %}

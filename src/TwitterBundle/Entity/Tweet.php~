@@ -1,0 +1,65 @@
+<?php
+
+namespace TwitterBundle\Entity;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Table(name="tweet")
+ * @ORM\Entity(repositoryClass="TwitterBundle\Repository\TweetRepository")
+ */
+class Tweet
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var int
+     * @ORM\Column(name="created_at", type="bigint", options={"unsigned"=true})
+     */
+    private $created_at;
+
+    /**
+     * @var string
+     * @ORM\Column(name="id_str", type="string")
+     */
+    private $id_str;
+
+    /**
+     * @var string
+     * @ORM\Column(name="text", type="text")
+     */
+    private $text;
+
+    /**
+     * @var int
+     * @ORM\Column(name="retweet_count", type="integer")
+     */
+    private $retweet_count;
+
+    /**
+     * @var int
+     * @ORM\Column(name="favorited", type="integer")
+     */
+    private $favorited;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Hashtag", mappedBy="tweet", cascade={"persist"})
+     */
+    private $hashtags;
+
+    /**
+     * Tweet constructor.
+     */
+    public function __construct()
+    {
+        $this->hashtags = new ArrayCollection();
+    }
+}
