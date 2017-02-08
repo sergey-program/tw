@@ -56,34 +56,44 @@ class FetchTweetsCommand extends ContainerAwareCommand
         $rHashtag = $doctrine->getRepository('TwitterBundle:Hashtag');
 
         foreach ($apiTweets as $apiTweet) {
+            /** @var Tweet $tweet */
             $tweet = $rTweet->findOneBy(['id_str' => $apiTweet->id_str]);
-            $tweet = $tweet ? $tweet : new Tweet();
 
-            $tweet
-                ->setIdStr($apiTweet->id_str)
-                ->setText($apiTweet->text)
-                ->setCreatedAt(strtotime($apiTweet->created_at))
-                ->setFavorited($apiTweet->favorited ? $apiTweet->favorited : 0)
-                ->setRetweetCount($apiTweet->retweet_count ? $apiTweet->retweet_count : 0);
+            if ($tweet) {
+                $output->writeln('Tweet id: ' . $tweet->getIdStr() . ' already added. Do nothing and go next.');
+            } else {
+                $output->write('New tweet. Adding ... ');
 
-            $em->persist($tweet);
-            $em->flush();
+                $tweet = new Tweet();
+                $tweet
+                    ->setIdStr($apiTweet->id_str)
+                    ->setText($apiTweet->text)
+                    ->setCreatedAt(strtotime($apiTweet->created_at))
+                    ->setFavorited($apiTweet->favorited ? $apiTweet->favorited : 0)
+                    ->setRetweetCount($apiTweet->retweet_count ? $apiTweet->retweet_count : 0)
+                    ->setUpdatedAt(time());
 
-            $output->writeln('Tweet #' . $tweet->getId() . ' was updated.');
+                $em->persist($tweet);
+                $em->flush();
 
-            $rHashtag->deleteByTweetID($tweet->getId());
+                $output->writeln('Tweet #' . $tweet->getId() . ' was added.');
 
-            // insert new\updated if exists
-            if (isset($apiTweet->entities->hashtags) && !empty($apiTweet->entities->hashtags)) {
-                foreach ($apiTweet->entities->hashtags as $apiHashtag) {
-                    $hashtag = new Hashtag();
-                    $hashtag->setHashtag($apiHashtag->text)->setTweet($tweet);
+                $rHashtag->deleteByTweetID($tweet->getId());
 
-                    $em->persist($hashtag);
-                    $em->flush();
+                // insert new\updated if exists
+                if (isset($apiTweet->entities->hashtags) && !empty($apiTweet->entities->hashtags)) {
+                    foreach ($apiTweet->entities->hashtags as $apiHashtag) {
+                        $hashtag = new Hashtag();
+                        $hashtag->setHashtag($apiHashtag->text)->setTweet($tweet);
 
-                    $output->writeln('Hashtags for tweet #' . $tweet->getId() . ' was updated.');
+                        $em->persist($hashtag);
+                        $em->flush();
+
+                        $output->writeln('Hashtags for tweet #' . $tweet->getId() . ' was updated.');
+                    }
                 }
+
+                $output->writeln('done.');
             }
         }
     }

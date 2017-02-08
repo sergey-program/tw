@@ -3,6 +3,7 @@
 namespace TwitterBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
@@ -28,18 +29,7 @@ class TweetRepository extends EntityRepository
             ->orderBy('t.retweet_count', 'DESC')
             ->setMaxResults($limit);
 
-        if (isset($filter['hashtags']) && !empty($filter['hashtags']) && is_array($filter['hashtags'])) {
-            $query
-                ->leftJoin('t.hashtags', 'h')
-                ->andWhere('h.hashtag IN (:hashtags)')
-                ->setParameter('hashtags', array_values($filter['hashtags']));
-        }
-
-        if (isset($filter['searchString']) && !empty($filter['searchString'])) {
-            $query
-                ->andWhere('t.text LIKE :searchString')
-                ->setParameter('searchString', '%' . $filter['searchString'] . '%');
-        }
+        $query = $this->addFilterConditions($query, $filter);
 
         return $query->getQuery()->getResult();
     }
@@ -53,12 +43,27 @@ class TweetRepository extends EntityRepository
      */
     public function getPaginated($page = 1, $limit = 10, $filter = [])
     {
-        $query = $this->createQueryBuilder('t');
+        $query = $this->addFilterConditions($this->createQueryBuilder('t'), $filter);
+        $query->orderBy('t.created_at', 'DESC')->getQuery();
 
+        $paginator = new Paginator($query);
+        $paginator->getQuery()->setFirstResult($limit * ($page - 1))->setMaxResults($limit);
+
+        return $paginator;
+    }
+
+    /**
+     * @param QueryBuilder $query
+     * @param array        $filter
+     *
+     * @return QueryBuilder
+     */
+    private function addFilterConditions($query, $filter)
+    {
         if (isset($filter['hashtags']) && !empty($filter['hashtags']) && is_array($filter['hashtags'])) {
             $query
                 ->leftJoin('t.hashtags', 'h')
-                ->where('h.hashtag IN (:hashtags)')
+                ->andWhere('h.hashtag IN (:hashtags)')
                 ->setParameter('hashtags', array_values($filter['hashtags']));
         }
 
@@ -68,13 +73,28 @@ class TweetRepository extends EntityRepository
                 ->setParameter('searchString', '%' . $filter['searchString'] . '%');
         }
 
-        $query
-            ->orderBy('t.created_at', 'DESC')
-            ->getQuery();
+        return $query;
+    }
 
-        $paginator = new Paginator($query);
-        $paginator->getQuery()->setFirstResult($limit * ($page - 1))->setMaxResults($limit);
+    /**
+     * @param int $limit
+     * @param int $lastDays
+     *
+     * @return array
+     */
+    public function getTweetsForUpdate($limit, $lastDays)
+    {
+        $query = $this
+            ->createQueryBuilder('t')
+            ->orderBy('t.updated_at', 'DESC')
+            ->setMaxResults($limit);
 
-        return $paginator;
+        if (is_numeric($lastDays)) {
+            $query
+                ->where('t.created_at >= :created_at')
+                ->setParameter('created_at', time() - (60 * 60 * 24 * $lastDays));
+        }
+
+        return $query->getQuery()->getResult();
     }
 }

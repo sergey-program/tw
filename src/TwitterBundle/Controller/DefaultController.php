@@ -36,7 +36,6 @@ class DefaultController extends Controller
         $ttc = $this->getParameter('tweets_top_count');
         $ttd = $this->getParameter('tweets_top_days');
 
-
         $topRetweeted = $rTweet->getTopRetweeted($ttc, $ttd, $filter);
 
         return $this->render('TwitterBundle:Default:index.html.twig', [

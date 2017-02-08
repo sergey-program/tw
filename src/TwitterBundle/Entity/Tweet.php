@@ -27,6 +27,12 @@ class Tweet
     private $created_at;
 
     /**
+     * @var int
+     * @ORM\Column(name="updated_at", type="bigint", options={"unsigned"=true})
+     */
+    private $updated_at;
+
+    /**
      * @var string
      * @ORM\Column(name="id_str", type="string")
      */
@@ -225,5 +231,29 @@ class Tweet
     public function getHashtags()
     {
         return $this->hashtags;
+    }
+
+    /**
+     * Set updated_at
+     *
+     * @param integer $updatedAt
+     *
+     * @return Tweet
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updated_at = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get updated_at
+     *
+     * @return integer
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updated_at;
     }
 }
