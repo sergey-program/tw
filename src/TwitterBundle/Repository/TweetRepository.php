@@ -13,13 +13,13 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 class TweetRepository extends EntityRepository
 {
     /**
-     * @param int         $limit
-     * @param int         $days
-     * @param null|string $hashtag
+     * @param int   $limit
+     * @param int   $days
+     * @param array $filter
      *
      * @return array
      */
-    public function getTopRetweeted($limit = 10, $days = 10, $hashtag = null)
+    public function getTopRetweeted($limit = 10, $days = 10, $filter = [])
     {
         $query = $this
             ->createQueryBuilder('t')
@@ -28,32 +28,44 @@ class TweetRepository extends EntityRepository
             ->orderBy('t.retweet_count', 'DESC')
             ->setMaxResults($limit);
 
-        if ($hashtag) {
+        if (isset($filter['hashtags']) && !empty($filter['hashtags']) && is_array($filter['hashtags'])) {
             $query
                 ->leftJoin('t.hashtags', 'h')
-                ->andWhere('h.hashtag = :hashtag')
-                ->setParameter('hashtag', $hashtag);
+                ->andWhere('h.hashtag IN (:hashtags)')
+                ->setParameter('hashtags', array_values($filter['hashtags']));
+        }
+
+        if (isset($filter['searchString']) && !empty($filter['searchString'])) {
+            $query
+                ->andWhere('t.text LIKE :searchString')
+                ->setParameter('searchString', '%' . $filter['searchString'] . '%');
         }
 
         return $query->getQuery()->getResult();
     }
 
     /**
-     * @param int         $page
-     * @param int         $limit
-     * @param null|string $hashtag
+     * @param int   $page
+     * @param int   $limit
+     * @param array $filter
      *
      * @return Paginator
      */
-    public function getPaginated($page = 1, $limit = 10, $hashtag = null)
+    public function getPaginated($page = 1, $limit = 10, $filter = [])
     {
         $query = $this->createQueryBuilder('t');
 
-        if ($hashtag) {
+        if (isset($filter['hashtags']) && !empty($filter['hashtags']) && is_array($filter['hashtags'])) {
             $query
                 ->leftJoin('t.hashtags', 'h')
-                ->where('h.hashtag = :hashtag')
-                ->setParameter('hashtag', $hashtag);
+                ->where('h.hashtag IN (:hashtags)')
+                ->setParameter('hashtags', array_values($filter['hashtags']));
+        }
+
+        if (isset($filter['searchString']) && !empty($filter['searchString'])) {
+            $query
+                ->andWhere('t.text LIKE :searchString')
+                ->setParameter('searchString', '%' . $filter['searchString'] . '%');
         }
 
         $query

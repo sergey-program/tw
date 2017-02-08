@@ -1,129 +1,155 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>some feed name</h1>
+
+    {% set param = app.request.query.all|merge(app.request.get('_route_params')) %}
+
+    <h3>
+        <span class="text-muted">http://twitter.com/</span><strong>{{ twitter_feed }}</strong>
+    </h3>
+
     {% if app.request.get('hashtag') %}
-        <p><a href="{{ path('twitter_index') }}" class="btn btn-primary">back</a></p>
-        <p>Filter: <strong>#{{ app.request.get('hashtag') }}</strong></p>
+        <p>
+            <a href="{{ path('twitter_index') }}" class="btn btn-primary btn-xs ">Вернутся на главную</a>
+            Новости по тэгу: <strong>#{{ app.request.get('hashtag') }}</strong>
+        </p>
     {% endif %}
 
     <div class="row">
 
         <div class="col-md-8">
-            <div class="panel panel-default">
+            {% set param = param|merge({'page': 1}) %}
 
-                <div class="panel-heading">
-                    <h3 class="panel-title">Feed</h3>
+            <form class="form" style="margin-bottom: 20px;" action="{{ path(app.request.get('_route'), param) }}">
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" name="search" class="form-control" value="{{ app.request.query.get('search') }}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary form-control">Применить фильтр</button>
+                    </div>
                 </div>
+            </form>
 
-                <div class="panel-body">
-                    <ul class="list-group">
-                        {% for tweet in tweets %}
-                            <li class="list-group-item">
-                                <div class="pull-right">
-                                    <i class="fa fa-retweet" title="Re-tweeted"></i> {{ tweet.retweetCount }}
-                                    <i class="fa fa-star-o" title="Favorited"></i> {{ tweet.favorited }}
-                                </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <small>
+                        <p class="text-info">Поиск как строка: "блог", применимы проблемы. Слова не делит, ищет целиком строку %блог%.</p>
+                        <p class="text-info">Поиск как хэштэг: применяется только один, примеру "#автор". Варианты "#авто #kia" не будут работать.</p>
+                        <p class="text-danger">Любые другие варианты не применимы.</p>
+                    </small>
+                </div>
+            </div>
 
-                                <p><i class="fa fa-calendar"></i> {{ tweet.createdAt|date('Y-m-d H:i:s') }}</p>
-                                <p>{{ tweet.idStr }}</p>
 
-                                {% if tweet.hashtags %}
-                                    <p>
-                                        {% for hashtag in tweet.hashtags %}
-                                            <a href="{{ path('twitter_index_hashtag', {'hashtag': hashtag.hashtag}) }}">
-                                                <span class="label label-default">#{{ hashtag.hashtag }}</span>
-                                            </a>
-                                            {% if not loop.last %},{% endif %}
-                                        {% endfor %}
-                                    </p>
-                                {% endif %}
+            {% if tweets.count %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Результат поиска</h3>
+                    </div>
 
-                                <p>{{ tweet.text }}</p>
-                            </li>
-                        {% endfor %}
-                    </ul>
+                    <div class="panel-body">
 
-                    {% if maxPage > 1 %}
-                        <ul class="pagination pagination-sm">
-                            {# `«` arrow  #}
-                            <li {{ curPage == 1 ? 'class="disabled"' }}>
-                                {% set param = app.request.get('_route_params') %}
-                                {% if param is null %}
-                                    {% set param = {'page': curPage-1 < 1 ? 1 : curPage-1} %}
-                                {% else %}
-                                    {% set param = param|merge({'page': curPage-1 < 1 ? 1 : curPage-1}) %}
-                                {% endif %}
+                        <ul class="list-group">
+                            {% for tweet in tweets %}
+                                <li class="list-group-item">
+                                    <div class="pull-right">
+                                        <i class="fa fa-retweet" title="Re-tweeted"></i> {{ tweet.retweetCount }}
+                                        <i class="fa fa-star-o" title="Favorited"></i> {{ tweet.favorited }}
+                                    </div>
 
-                                <a href="{{ path( app.request.get('_route'), param) }}">«</a>
-                            </li>
+                                    <p><i class="fa fa-calendar"></i> {{ tweet.createdAt|date('Y-m-d H:i:s') }}</p>
+                                    <p>{{ tweet.idStr }}</p>
 
-                            {# Render each page number #}
-                            {% for i in 1..maxPage %}
-                                {% set param = app.request.get('_route_params') %}
-                                {% if param is null %}
-                                    {% set param = {'page': i} %}
-                                {% else %}
-                                    {% set param = param|merge({'page': i}) %}
-                                {% endif %}
+                                    {% if tweet.hashtags %}
+                                        <p>
+                                            {% for hashtag in tweet.hashtags %}
+                                                <a href="{{ path('twitter_index_hashtag', {'hashtag': hashtag.hashtag}) }}">
+                                                    <span class="label label-default">#{{ hashtag.hashtag }}</span>
+                                                </a>
+                                                {% if not loop.last %},{% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    {% endif %}
 
-                                <li {{ curPage == i ? 'class="active"' }}>
-                                    <a href="{{ path( app.request.get('_route'), param) }}">{{ i }}</a>
+                                    <p>{{ tweet.text }}</p>
                                 </li>
                             {% endfor %}
-
-                            {# `»` arrow #}
-                            <li {{ curPage == maxPage ? 'class="disabled"' }}>
-                                {% set param = app.request.get('_route_params') %}
-                                {% if param is null %}
-                                    {% set param = {'page': curPage+1 <= maxPage ? curPage+1 : curPage} %}
-                                {% else %}
-                                    {% set param = param|merge({'page': curPage+1 <= maxPage ? curPage+1 : curPage}) %}
-                                {% endif %}
-
-                                <a href="{{ path(app.request.get('_route'), param) }}">»</a>
-                            </li>
                         </ul>
-                    {% endif %}
-                </div>
 
-            </div>
+
+                        {% if maxPage > 1 %}
+                            <ul class="pagination pagination-sm">
+                                {# `«` arrow  #}
+                                <li {{ curPage == 1 ? 'class="disabled"' }}>
+                                    {% set param = param|merge({'page': curPage-1 < 1 ? 1 : curPage-1}) %}
+                                    <a href="{{ path( app.request.get('_route'), param) }}">«</a>
+                                </li>
+
+                                {# Render each page number #}
+                                {% for i in 1..maxPage %}
+                                    <li {{ curPage == i ? 'class="active"' }}>
+                                        {% set param = param|merge({'page': i}) %}
+                                        <a href="{{ path( app.request.get('_route'), param) }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+
+                                {# `»` arrow #}
+                                <li {{ curPage == maxPage ? 'class="disabled"' }}>
+                                    {% set param = param|merge({'page': curPage+1 <= maxPage ? curPage+1 : curPage}) %}
+                                    <a href="{{ path(app.request.get('_route'), param) }}">»</a>
+                                </li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <p class="alert alert-info text-center">Ничего на найдено.</p>
+            {% endif %}
         </div>
 
         <div class="col-md-4">
-            <div class="panel panel-default">
 
-                <div class="panel-heading">
-                    <h3 class="panel-title">Top retweeted (last 20 days)</h3>
+            {% if topRetweeted %}
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Топ рэтвитнутых за посл. {{ tweets_top_days }} дней</h3>
+                    </div>
+
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            {% for tweet in topRetweeted %}
+                                <li class="list-group-item">
+                                    <div class="pull-right">
+                                        <i class="fa fa-retweet" title="Re-tweeted"></i> {{ tweet.retweetCount }}
+                                        <i class="fa fa-star-o" title="Favorited"></i> {{ tweet.favorited }}
+                                    </div>
+
+                                    <p><i class="fa fa-calendar"></i> {{ tweet.createdAt|date('Y-m-d H:i:s') }}</p>
+                                    <p>{{ tweet.idStr }}</p>
+
+                                    {% if tweet.hashtags %}
+                                        <p>
+                                            {% for hashtag in tweet.hashtags %}
+                                                <span class="label label-default">#{{ hashtag.hashtag }}</span>{% if not loop.last %},{% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    {% endif %}
+
+                                    <p>{{ tweet.text }}</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
                 </div>
-
-                <div class="panel-body">
-                    <ul class="list-group">
-                        {% for tweet in topRetweeted %}
-                            <li class="list-group-item">
-                                <div class="pull-right">
-                                    <i class="fa fa-retweet" title="Re-tweeted"></i> {{ tweet.retweetCount }}
-                                    <i class="fa fa-star-o" title="Favorited"></i> {{ tweet.favorited }}
-                                </div>
-
-                                <p><i class="fa fa-calendar"></i> {{ tweet.createdAt|date('Y-m-d H:i:s') }}</p>
-                                <p>{{ tweet.idStr }}</p>
-
-                                {% if tweet.hashtags %}
-                                    <p>
-                                        {% for hashtag in tweet.hashtags %}
-                                            <span class="label label-default">#{{ hashtag.hashtag }}</span>{% if not loop.last %},{% endif %}
-                                        {% endfor %}
-                                    </p>
-                                {% endif %}
-
-                                <p>{{ tweet.text }}</p>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-            </div>
+            {% else %}
+                <p class="alert alert-warning text-center">За посл. {{ tweets_top_days }} дней ничего не найдено.</p>
+                <p class="alert alert-info text-center">Значит что за последний N дней, нету вообще твиттов с указанным критерием. Показанные в результате поиска твитты (если они есть) вне указанного диапазона времени.</p>
+                <p class="text-muted text-center">Количество дней и количество записей, настраивается в конфигурации.</p>
+            {% endif %}
         </div>
 
     </div>

@@ -35,6 +35,10 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    globals:
+        twitter_feed:       "%twitter_feed%"
+        tweets_top_count:   "%tweets_top_count%"
+        tweets_top_days:    "%tweets_top_days%"
 
 # Doctrine Configuration
 doctrine:
